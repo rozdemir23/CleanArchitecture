@@ -17,14 +17,14 @@ namespace Infrastructure
             services.AddEntityFrameworkNpgsql().AddDbContext<ApplicationDBContext>(opt =>
             opt.UseNpgsql(configuration.GetConnectionString("TekstilDatabase")));
 
-          /*  //Redis Kurulumu
+             Redis Kurulumu
              var connectionString = configuration.GetConnectionString("Redis");
 
              var redisConnection = ConnectionMultiplexer.Connect(connectionString);
              services.AddSingleton<IConnectionMultiplexer>(redisConnection);
 
              var redisDb = redisConnection.GetDatabase(0);
-             services.AddSingleton(redisDb); */
+             services.AddSingleton(redisDb); 
 
             return services;
         }
