@@ -7,16 +7,6 @@
         public string Tip { get; set; }
         public DateTime Tarih { get; set; }
 
-        public Urun(int iD, string uAdi, string tip, DateTime tarih)
-        {
-            this.ID = iD;
-            this.UAdi = uAdi;
-            this.Tip = tip;
-            this.Tarih = tarih;
-        }
-
-        public Urun()
-        {
-        }
+        
     }
 }
