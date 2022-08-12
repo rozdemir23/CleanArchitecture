@@ -1,8 +1,8 @@
-﻿using WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApi.Models;
+using WebApi.Data;
 
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WebApi.Controllers
 {
@@ -10,51 +10,91 @@ namespace WebApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private readonly DataContext _context;
 
-        List<Urun> uruns = new List<Urun>()
+        public ValuesController(DataContext context)
         {
-            new Urun(1, "Tisort", "Ust Giyim", DateTime.Today),
-            new Urun(2, "Atkı", "Aksesuar", DateTime.Today),
-            new Urun(3, "Pantalon", "Alt Giyim", DateTime.Today),
-            new Urun(4, "Mont", "Dis Giyim", DateTime.Today)
+            _context = context;
+        }
 
-        };
-
-        // GET: api/<ValuesController>
         [HttpGet]
-        public List<Urun> Get()
+        public async Task<ActionResult<IEnumerable<Urun>>> GetUrun()
         {
-            return uruns;
+            return await _context.Urun.ToListAsync();
         }
 
 
-        // GET api/<ValuesController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<Urun>> GetUrun(int id)
         {
-            return "value";
+            var urun = await _context.Urun.FindAsync(id);
+
+            if (urun == null)
+            {
+                return NotFound();
+            }
+
+            return urun;
         }
 
-        // POST api/<ValuesController>       
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
 
-
-        // PUT api/<ValuesController>/5
         [HttpPut("{id}")]
-            public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> PutUrun(int id, Urun urun)
+        {
+            if (id != urun.ID)
             {
+                return BadRequest();
             }
 
-            // DELETE api/<ValuesController>/5
-            [HttpDelete("{id}")]
-            public void Delete(int id)
+            _context.Entry(urun).State = EntityState.Modified;
+
+            try
             {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UrunExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
+            return NoContent();
         }
+
+     
+        [HttpPost]
+        public async Task<ActionResult<Urun>> PostUrun(Urun urun)
+        {
+            _context.Urun.Add(urun);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetUrun", new { id = urun.ID }, urun);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUrun(int id)
+        {
+            var urun = await _context.Urun.FindAsync(id);
+            if (urun == null)
+            {
+                return NotFound();
+            }
+
+            _context.Urun.Remove(urun);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool UrunExists(int id)
+        {
+            return _context.Urun.Any(e => e.ID == id);
+        }
+    }
 }
-
-
